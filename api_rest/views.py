@@ -74,11 +74,8 @@ class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    permission_classes = [IsAuthenticated]
-    # @csrf_exempt
 
     def get_queryset(self):
         """

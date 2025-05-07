@@ -49,13 +49,23 @@ class Booking(models.Model):
     ]
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='bookings')
     table = models.ForeignKey(table, on_delete=models.CASCADE, related_name='bookings')
+    restaurant = models.ForeignKey(restaurant, on_delete=models.CASCADE)
     check_in_date = models.DateField()
-    check_out_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    check_in_time = models.TimeField()
+    check_out_time = models.TimeField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
 
+    class Meta:
+        ordering = ['-check_in_date', '-check_in_time', '-check_out_time']
+
     def __str__(self):
-        return f"Booking by {self.user.username} - table {self.table.id}"
+        return (f"Booking by {self.user.username} - table {self.table.id} at {self.check_in_time} - {self.check_out_time} "
+                f"on {self.check_in_date}")
+
+
+    # def __str__(self):
+    #     return f"Booking by {self.user.username} - table {self.table.id}"
 
 
 # # Отзыв

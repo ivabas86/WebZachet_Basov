@@ -16,39 +16,63 @@ class tableSerializer(serializers.ModelSerializer):
 
 
 class BookingSerializer(serializers.ModelSerializer):
+    # check_in_time = serializers.TimeField(format='%H:%M:%S', input_formats=['%H:%M:%S'])
+    # check_out_time = serializers.TimeField(format='%H:%M:%S', input_formats=['%H:%M:%S'])
     class Meta:
         model = Booking
         fields = '__all__'
-        read_only_fields = ('user', 'created_at')
+        read_only_fields = ('user', 'created_at','status','restaurant')
 
-    def validate(self, data):  # Переопределение валидации для проверки доступности номера
+    def validate(self, data):  # Переопределение валидации для проверки доступности столика
         table = data['table']
         check_in = data['check_in_date']
-        check_out = data['check_out_date']
-
+        check_in_time = data['check_in_time']
+        check_out_time = data['check_out_time']
+        data['restaurant'] = table.restaurant
         overlaps = Booking.objects.filter(
+            restaurant=data['restaurant'],
             table=table,
-            check_in_date__lt=check_out,
-            check_out_date__gt=check_in,
+            check_in_date=check_in,
+            check_out_time=check_out_time,
+            check_in_time=check_in_time,
             status='active'
         ).exists()
 
         if overlaps:
-            raise serializers.ValidationError("Этот столик недоступен в эту дату")
+            raise serializers.ValidationError("Этот столик недоступен в эту дату и указанное время")
 
         return data
+
+    # def validate(self, data):
+    #     table = data.get('table')
+    #     check_in = data.get('check_in_date')
+    #
+    #     if not all([table, check_in]):
+    #         raise serializers.ValidationError("Необходимо указать столик и дату бронирования")
+    #
+    #     data['restaurant'] = table.restaurant
+    #
+    #     overlapping = Booking.objects.filter(
+    #         restaurant=data['restaurant'],
+    #         table=table,
+    #         check_in_date=check_in,
+    #         status='active'
+    #     )
+    #
+    #     if self.instance:
+    #         overlapping = overlapping.exclude(pk=self.instance.pk)
+    #
+    #     if overlapping.exists():
+    #         raise serializers.ValidationError(
+    #             f"Столик {table} в ресторане {data['restaurant']} уже забронирован "
+    #             f" на дату {overlapping.first().check_in_date}"
+    #         )
+    #
+    #     return data
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
-
-
-# class ReviewSerializer(serializers.ModelSerializer):
-#     user = serializers.StringRelatedField(read_only=True)
-#
-#     class Meta:
-#         model = Review
-#         fields = '__all__'
 
 
 class RegisterSerializer(serializers.ModelSerializer):

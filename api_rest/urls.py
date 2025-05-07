@@ -11,7 +11,7 @@ router = DefaultRouter()
 router.register(r'restaurant', restaurantViewSet, basename='restaurant')
 router.register(r'tables', tableViewSet, basename='table')
 router.register(r'bookings', BookingViewSet, basename='booking')
-# router.register(r'reviews', ReviewViewSet, basename='review')
+
 
 urlpatterns = [
     path('', include(router.urls)),
