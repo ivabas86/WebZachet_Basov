@@ -33,8 +33,8 @@ class BookingSerializer(serializers.ModelSerializer):
             restaurant=data['restaurant'],
             table=table,
             check_in_date=check_in,
-            check_out_time=check_out_time,
             check_in_time=check_in_time,
+            check_out_time=check_out_time,
             status='active'
         ).exists()
 
